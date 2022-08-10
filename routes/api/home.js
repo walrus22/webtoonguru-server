@@ -10,7 +10,7 @@ let today = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*5)).toISOString().slice(0, -1); // *%5지워
 
 
-router.post('/home', (req,res)=>{
+router.get('/home', (req,res)=>{
   // console.log(today)
   // console.log(yesterday)
   Platform.find({$and : [
