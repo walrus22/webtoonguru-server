@@ -18,52 +18,36 @@ router.get('/', function(req, res, next) {
     res.send("hello")
   });
 
-var storedDataByGenre = []; 
-
-router.get('/:name', (req,res)=>{ 
-  let pipeline = [];
+  var cacheDataByGenre = {}; 
+  const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", 
+  "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"]
   
-  console.log(storedDataByGenre)
-  if(storedDataByGenre.length !== 0){
-    console.log("hey")
-    res.json(storedDataByGenre);
-    console.log(storedDataByGenre)
-  } else {
-    console.log("you are in else")
-    pipeline.push({$lookup: {
+  let pipeline = [
+    {$lookup: {
       localField: "webtoon._id",
       from: "webtoon",
       foreignField: "_id",
       as: "webtoon_extend"
-    }});
+    }}, 
+  ];
   
-    pipeline.push({$match: {"genre.name": req.params.name, "rank" : {"$lte": 10}}});
-    // pipeline.push({$sort: {'rank' : 1}})
-    // pipeline.push({$limit: 70})
-  
-    Platform.aggregate(pipeline)
-    .then(webtoons => {
-      res.json(webtoons)
-      storedDataByGenre = webtoons;
-    })
-    .catch(err => res.status(404).json({ nobooksfound: 'No Webtoons found' }));
+  const caching = async () => {
+    for(genre of genre_list){
+      await pipeline.push({$match: {"genre.name": genre, "rank" : {"$lte": 10}}})
+      cacheDataByGenre[genre] = await Platform.aggregate(pipeline)
+      await pipeline.pop()
+    }
+    await console.log(cacheDataByGenre)
   }
+  
+  caching()
+  
+  router.get('/:name', (req,res)=>{ 
+    res.json(cacheDataByGenre[req.params.name])
+  });
+  
 
-});
 
-router.post('/list', (req,res) =>{
-  Genre.find()
-  .sort({'name':1})
-  .then(genres => res.json(genres))
-  .catch(err => res.status(404).json({ nogenresfound: 'No genres found' }));
-})
-
-// router.get('/details/:id', (req,res)=>{
-//     console.log(req.params.id)
-//     Genre.findOne({_id : ObjectId(req.params.id)})
-//     .then(genres => res.json(genres))
-//     .catch(err => res.status(404).json({ nogenresfound: 'No genres found' }));
-//   });
   
 module.exports = router;
 
