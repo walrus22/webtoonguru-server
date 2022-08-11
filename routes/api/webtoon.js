@@ -109,6 +109,7 @@ router.post('/list', (req,res)=>{
 
 router.post('/details/:id', (req,res)=>{
   Webtoon.findOne({_id : ObjectId(req.params.id)})
+  .populate('platform._id')
   .then(webtoons => res.json(webtoons))
   .catch(err => res.status(404).json({ nobooksfound: 'No Webtoons found' }));
 });
