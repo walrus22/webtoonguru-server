@@ -23,7 +23,7 @@ const cachingHomePage = async () => {
 
 cachingHomePage()
 
-router.post('/', (req,res)=>{
+router.get('/', (req,res)=>{
   res.json(cacheDataHomePage)
 })
 
