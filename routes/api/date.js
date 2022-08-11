@@ -12,37 +12,46 @@ router.get('/', function(req, res, next) {
   res.send('genres');
 });
 
+var storedDataByGenre = []; 
+
 router.get('/:date', (req,res)=>{ 
   let pipeline = [];
   let mergeObject = [];
 
-  pipeline.push({$lookup: {
-    localField: "webtoon._id",
-    from: "webtoon",
-    foreignField: "_id",
-    as: "webtoon"
-  }});
-
-  pipeline.push({$match: {"webtoon" : {"$elemMatch": {"date.name" : req.params.date}}}});
-  pipeline.push({$sort: {'rank' : 1}})
-  pipeline.push({$limit: 10}) 
+  if(storedDataByGenre.length !== 0){
+    console.log("hey")
+    res.json(storedDataByGenre);
+    console.log(storedDataByGenre)
+  } else {
+    pipeline.push({$lookup: {
+      localField: "webtoon._id",
+      from: "webtoon",
+      foreignField: "_id",
+      as: "webtoon"
+    }});
   
-  const platform_list = ['naver', 'lezhin', 'bomtoon', 'ktoon', 'mrblue'];
-
-  const loopAggregate = async () => {
-    for(platform of platform_list) {
-      if(platform_list.indexOf(platform) === 0){
-        await pipeline.splice(0, 0, {$match: {'name' : `${platform}`}})
-      } else {
-        await pipeline.splice(0, 1, {$match: {'name' : `${platform}`}})
+    pipeline.push({$match: {"webtoon" : {"$elemMatch": {"date.name" : req.params.date}}}});
+    pipeline.push({$sort: {'rank' : 1}})
+    pipeline.push({$limit: 10}) 
+    
+    const platform_list = ['naver', 'lezhin', 'bomtoon', 'ktoon', 'mrblue'];
+  
+    const loopAggregate = async () => {
+      for(platform of platform_list) {
+        if(platform_list.indexOf(platform) === 0){
+          await pipeline.splice(0, 0, {$match: {'name' : `${platform}`}})
+        } else {
+          await pipeline.splice(0, 1, {$match: {'name' : `${platform}`}})
+        }
+        let webtoons = await Platform.aggregate(pipeline);
+        await Array.prototype.push.apply(mergeObject,webtoons)
       }
-      let webtoons = await Platform.aggregate(pipeline);
-      await Array.prototype.push.apply(mergeObject,webtoons)
+      await res.json(mergeObject)
     }
-    await res.json(mergeObject)
+    
+    loopAggregate()
   }
-  
-  loopAggregate()
+
 
   // pipeline.push({'$addFields' : { date :"$webtoon.date"}})
   // pipeline.push({$unwind: '$date'})
