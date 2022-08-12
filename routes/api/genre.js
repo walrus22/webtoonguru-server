@@ -12,15 +12,10 @@ let today = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 // 5 지워
 
 let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*5)).toISOString().slice(0, -1);
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.send("hello")
-  });
-
-  var cacheDataByGenre = {}; 
+var cacheDataByGenre = {}; 
+const cachingGenrePage = async () => {
   const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", 
-  "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"]
+  "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"];
   
   let pipeline = [
     {$lookup: {
@@ -30,23 +25,62 @@ router.get('/', function(req, res, next) {
       as: "webtoon_extend"
     }}, 
   ];
-  
-  const caching = async () => {
-    for(genre of genre_list){
-      await pipeline.push({$match: {"genre.name": genre, "rank" : {"$lte": 10}}})
-      cacheDataByGenre[genre] = await Platform.aggregate(pipeline)
-      await pipeline.pop()
-    }
-    await console.log(cacheDataByGenre)
-  }
-  
-  caching()
-  
-  router.get('/:name', (req,res)=>{ 
-    res.json(cacheDataByGenre[req.params.name])
-  });
-  
 
+  for(genre of genre_list){
+    await pipeline.push({$match: {"genre.name": genre, "rank" : {"$lte": 10}}});
+    cacheDataByGenre[genre] = await Platform.aggregate(pipeline);
+    await pipeline.pop();
+  }
+  // await console.log(cacheDataByGenre);
+}
+
+cachingGenrePage()
+
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.send("hello")
+});
+
+
+router.get('/:name', (req,res)=>{ 
+  res.json(cacheDataByGenre[req.params.name])
+  // let pipeline = [];
+  
+  // if(cacheDataByGenre[req.params.name]){
+  //   console.log("you are in if")
+  //   res.json(cacheDataByGenre[req.params.name]);
+  // } else {
+  //   console.log("you are in else")
+  //   pipeline.push({$lookup: {
+  //     localField: "webtoon._id",
+  //     from: "webtoon",
+  //     foreignField: "_id",
+  //     as: "webtoon_extend"
+  //   }});
+  
+  //   pipeline.push({$match: {"genre.name": req.params.name, "rank" : {"$lte": 10}}});
+  //   // pipeline.push({$sort: {'rank' : 1}})
+  //   // pipeline.push({$limit: 70})
+  
+  //   Platform.aggregate(pipeline)
+  //   .then(webtoons => {
+  //     cacheDataByGenre[req.params.name] = webtoons;
+  //   })
+  //   .catch(err => res.status(404).json({ nobooksfound: 'No Webtoons found' }));
+  // }
+});
+
+
+// router.post('/list', (req,res) =>{
+//   Genre.find()
+//   .sort({'name':1})
+//   .then(genres => {
+//     res.json(genres);
+
+//   })
+//   .catch(err => res.status(404).json({ nogenresfound: 'No genres found' }));
+// })
 
   
 module.exports = router;

@@ -20,8 +20,6 @@ router.post('/list', (req,res)=>{
   ~~
   Webtoon.find ~~
   ~~
- 
-
 }
 */
 
