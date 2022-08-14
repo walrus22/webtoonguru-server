@@ -7,10 +7,10 @@ router.get('/', function(req, res, next) {
   res.send('index test 20220814');
 });
 
-// router.post('/', function(req, res, next) {
-//   // res.redirect('')
-//   res.send('index');
-// });
+router.post('/', function(req, res, next) {
+  // res.redirect('')
+  res.send('index');
+});
 
 
 module.exports = router;
