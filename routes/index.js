@@ -4,7 +4,7 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res, next) {
   // res.redirect('')
-  res.send(process.env.MONGO_DB_URL);
+  res.send('hello');
 });
 
 router.post('/', function(req, res, next) {
