@@ -23,9 +23,26 @@ router.post('/list', (req,res)=>{
 }
 */
 
+
+/* 
+전체보기 페이지에서 reload 없이 search하는 것은 보장하면서,
+query문이 있는 url을 load 했을 (새로고침 등) 경우에는, query -> parameter
+
+1. list 
+2. 
+
+
+*/
+
+
+// router.post('/list/:q', (req,res) => {
+//   console.log(req.params.q)
+//   console.log(req.query.date);
+// })
+
 router.post('/list', (req,res)=>{
   // console.log(req.body.filters.order);
-  console.log(req.body);
+  console.log(req.body.filters);
 
   let pipeline = [];
   let date_match=[];
