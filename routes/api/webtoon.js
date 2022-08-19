@@ -12,6 +12,35 @@ function arrayEquals(a, b) {
       a.every((val, index) => val === b[index]);
 }
 
+function pipelinePushToggleGroup(filters, filterName, filterOperator, pipeline) {
+  let matchList=[];
+
+  // console.log(filters)
+  // console.log(filter)
+  // console.log(filterOperator)
+  // console.log(pipeline)
+  //filters : req.body.filters.date
+  //filterName : "date" , "genre" ...
+  
+  filterOrName = filterName + ".name"
+
+  if(arrayEquals(filters,['all'])){
+    pipeline.push({$match: {[filterName]: {$exists: "true"}}});
+  }else{
+    if(filterOperator === "and"){
+      filters.map((value) => {
+        matchList.push({$elemMatch: {'name' : value}})
+      });
+      pipeline.push({$match: {[filterName] : {$all: matchList}}});
+    } else { // or
+      filters.map((value) => {
+        matchList.push({[filterOrName] : value})
+      });
+      pipeline.push({$match: {$or: matchList}});
+    }
+  }
+}
+
 var storedDataByGenre = []; // 캐시를 사용할 경우, 여기다 저장해놓음. 데이터 커지면 메모리 부담되기 때문에 생성,소멸도 고려
 /* 
 router.post('/list', (req,res)=>{
@@ -27,59 +56,17 @@ router.post('/list', (req,res)=>{
 /* 
 전체보기 페이지에서 reload 없이 search하는 것은 보장하면서,
 query문이 있는 url을 load 했을 (새로고침 등) 경우에는, query -> parameter
-
-1. list 
-2. 
-
-
 */
 
-
-// router.post('/list/:q', (req,res) => {
-//   console.log(req.params.q)
-//   console.log(req.query.date);
-// })
-
 router.post('/list', (req,res)=>{
+  let pipeline = [];
   // console.log(req.body.filters.order);
   console.log(req.body.filters);
-
-  let pipeline = [];
-  let date_match=[];
-  let genre_match=[]; 
-  let platform_match=[];
-
-  // date
-  if(arrayEquals(req.body.filters.date,['all'])){
-    pipeline.push({$match: {"date": {$exists: "true"}}});
-  }else{
-    // console.log(req.body.filters.date);
-    req.body.filters.date.map((value) => {
-      date_match.push({"$elemMatch": {'name' : value}})
-    });
-    pipeline.push({$match: {"date": {"$all":date_match}}});
-  }
-
-  // genre
-  if(arrayEquals(req.body.filters.genre,['all'])){
-    pipeline.push({$match: {"genre": {$exists: true}}});
-  } else {
-    // console.log(req.body.filters.genre);
-    req.body.filters.genre.map((value) => {
-      genre_match.push({"$elemMatch": {'name' : value}})
-    });
-    pipeline.push({$match: {"genre": {"$all":genre_match}}});
-  }
-
-  //platform
-  if(arrayEquals(req.body.filters.platform,['all'])){
-    pipeline.push({$match: {"platform": {$exists: true}}});
-  } else {
-    req.body.filters.platform.map((value) => {
-      platform_match.push({"$elemMatch": {"name" : value}}) 
-    });
-    pipeline.push({$match: {"platform": {"$all":platform_match}}});
-  }
+  console.log(req.body.filters.genreOperator[0]);
+  
+  pipelinePushToggleGroup(req.body.filters.date, "date", req.body.filters.dateOperator[0], pipeline)
+  pipelinePushToggleGroup(req.body.filters.genre, "genre", req.body.filters.genreOperator[0], pipeline)
+  pipelinePushToggleGroup(req.body.filters.platform, "platform", req.body.filters.platformOperator[0], pipeline)
 
   // 작가 두명 이상 콤마 줬을 경우 if()
   if(req.body.filters.artist.indexOf(",") !== -1){
@@ -101,10 +88,11 @@ router.post('/list', (req,res)=>{
   // https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript
   // if(req.body.filters.order)
 
-  // 제목 일치
+  // 제목 일치 
   pipeline.push({$match: {'title': {$regex : req.body.filters.title}}})
-  // 성인물 on/off
-  pipeline.push({$match: {'adult' : req.body.filters.adult}})
+  // 성인물 on/off 
+  console.log(req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)
+  pipeline.push({$match: {'adult' : (req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)}})
   pipeline.push({$sort: req.body.filters.order})
 
   // pipeline.push({$setWindowFields: {output: {totalCount: {$count: {}}}}})
@@ -128,7 +116,6 @@ router.post('/details/:id', (req,res)=>{
   .then(webtoons => res.json(webtoons))
   .catch(err => res.status(404).json({ nobooksfound: 'No Webtoons found' }));
 });
-
 
 
 module.exports = router;
