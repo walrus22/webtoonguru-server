@@ -41,18 +41,6 @@ function pipelinePushToggleGroup(filters, filterName, filterOperator, pipeline) 
   }
 }
 
-var storedDataByGenre = []; // 캐시를 사용할 경우, 여기다 저장해놓음. 데이터 커지면 메모리 부담되기 때문에 생성,소멸도 고려
-/* 
-router.post('/list', (req,res)=>{
-  ~~
-  여기 조건문으로 캐쉬 보내주기
-  ~~
-  Webtoon.find ~~
-  ~~
-}
-*/
-
-
 /* 
 전체보기 페이지에서 reload 없이 search하는 것은 보장하면서,
 query문이 있는 url을 load 했을 (새로고침 등) 경우에는, query -> parameter
@@ -61,8 +49,8 @@ query문이 있는 url을 load 했을 (새로고침 등) 경우에는, query -> 
 router.post('/list', (req,res)=>{
   let pipeline = [];
   // console.log(req.body.filters.order);
-  console.log(req.body.filters);
-  console.log(req.body.filters.genreOperator[0]);
+  // console.log(req.body.filters);
+  // console.log(req.body.filters.genreOperator[0]);
   
   pipelinePushToggleGroup(req.body.filters.date, "date", req.body.filters.dateOperator[0], pipeline)
   pipelinePushToggleGroup(req.body.filters.genre, "genre", req.body.filters.genreOperator[0], pipeline)
@@ -91,7 +79,7 @@ router.post('/list', (req,res)=>{
   // 제목 일치 
   pipeline.push({$match: {'title': {$regex : req.body.filters.title}}})
   // 성인물 on/off 
-  console.log(req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)
+  // console.log(req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)
   pipeline.push({$match: {'adult' : (req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)}})
   pipeline.push({$sort: req.body.filters.order})
 

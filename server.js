@@ -42,6 +42,9 @@ app.use(function(err, req, res, next) {
   res.json({error: err});
 });
 
+// console.log(req.headers);
+
+
 
 // app.listen(port, () => {
 //   // perform a database connection when server starts

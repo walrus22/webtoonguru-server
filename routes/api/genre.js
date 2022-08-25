@@ -44,7 +44,21 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/:name', (req,res)=>{ 
+  // let reg = new RegExp(process.env.VALID_REFERER_URL, 'i')
+  // console.log(process.env.A);
+  // console.log(reg.test(req.headers.referer))
+  
+  console.log(req);
+  console.log("headers.referer: " + req.headers.referer);
+  console.log("host name: " + req.hostname);
+
   res.json(cacheDataByGenre[req.params.name])
+  
+  // if(req.hostname === "webtoon.guru"){
+  // } else {
+  //   res.json({"message" : "access denied"})
+  // }
+
   // let pipeline = [];
   
   // if(cacheDataByGenre[req.params.name]){
