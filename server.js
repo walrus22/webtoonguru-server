@@ -12,7 +12,7 @@ connectDB();
 // const dbo = require("./db/conn");
 
 // router setting
-app.use('/', require("./routes/index"));
+app.use('/',  require("./routes/index"));
 app.use('/api/home', require("./routes/api/home"));
 app.use('/api/webtoon', require("./routes/api/webtoon"));
 app.use('/api/genre', require("./routes/api/genre"));

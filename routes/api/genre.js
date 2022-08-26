@@ -39,6 +39,7 @@ cachingGenrePage()
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+  console.log(req.header('Host'));
   res.send("hello")
 });
 
@@ -48,9 +49,7 @@ router.get('/:name', (req,res)=>{
   // console.log(process.env.A);
   // console.log(reg.test(req.headers.referer))
   
-  console.log(req);
-  console.log("headers.referer: " + req.headers.referer);
-  console.log("host name: " + req.hostname);
+  // console.log(req);
 
   res.json(cacheDataByGenre[req.params.name])
   
