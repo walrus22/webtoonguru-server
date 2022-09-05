@@ -19,6 +19,8 @@ app.use('/api/genre', require("./routes/api/genre"));
 app.use('/api/artist', require("./routes/api/artist"));
 app.use('/api/platform', require("./routes/api/platform"));
 app.use('/api/date', require("./routes/api/date"));
+app.use('/api/search', require("./routes/api/search"));
+
 
 
 app.listen(port, () => {

@@ -63,21 +63,30 @@ router.post('/list', (req,res)=>{
     console.log(artist_list_temp)
     artist_list_temp.filter(n => n).map((value) => {
       console.log(value)
-      artist_list.push({"$elemMatch": {"name" : value}})
+      artistCaseInsensitive = new RegExp(value, 'i')
+      artist_list.push({"$elemMatch": {"name" : artistCaseInsensitive}})
+      // artist_list.push({"$elemMatch": {"name" : value}})
     });
     console.log(artist_list)
     pipeline.push({$match: {"artist": {"$all":artist_list}}})
   }
   else{
-    pipeline.push({$match: {"artist.name": {$regex : req.body.filters.artist}}})
+    // pipeline.push({$match: {"artist.name": {$regex : req.body.filters.artist}}})
+    artistCaseInsensitive = new RegExp(req.body.filters.artist, 'i')
+    pipeline.push({$match: {"artist.name": {$regex : artistCaseInsensitive}}})
   }
+
+  // let reg = new RegExp(process.env.VALID_REFERER_URL, 'i')
+  // artist_exist = db["artist"].find_one({'name': {'$regex' : '^{}$'.format(artist_temp), "$options" : "i"}})
+
 
   // order 만약 있으면 push하고, 없으면 push안하고
   // https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript
   // if(req.body.filters.order)
 
   // 제목 일치 
-  pipeline.push({$match: {'title': {$regex : req.body.filters.title}}})
+  titleCaseInsensitive = new RegExp(req.body.filters.title, 'i')
+  pipeline.push({$match: {'title': {$regex : titleCaseInsensitive}}})
   // 성인물 on/off 
   // console.log(req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)
   pipeline.push({$match: {'adult' : (req.body.filters.adult === "all" ? {$exists: true} : req.body.filters.adult)}})
