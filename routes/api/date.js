@@ -8,7 +8,7 @@ const Platform = require('../../models/platform')
 
 var cacheDataByDate = {}; 
 const day_list = ["월","화","수","목","금","토","일","연재","완결","열흘", "비정기"]
-const platform_list = ['naver', 'lezhin', 'bomtoon', 'ktoon', 'mrblue'];
+const platform_list = ["naver", "kakao_webtoon", "lezhin", "toomics", "ktoon", "bomtoon", "mrblue",  "onestory", ];
 
 const cachingDatePage = async () => {
   for(date of day_list){
@@ -21,9 +21,11 @@ const cachingDatePage = async () => {
       }},
       {$match: {"webtoon" : {"$elemMatch": {"date.name" : date}}}},
       {$sort: {'rank' : 1}},
-      {$limit: 10}
+      {$limit: 30}
     ];
     let mergeObject = await [];
+
+    // 플랫폼 별로 10개씩 끊어서 저장
     for(platform of platform_list) {
       if(platform_list.indexOf(platform) === 0){
         await pipeline.splice(0, 0, {$match: {'name' : `${platform}`}});
@@ -35,7 +37,12 @@ const cachingDatePage = async () => {
     }
     cacheDataByDate[date] = await mergeObject;
   }
+
+  for(date of day_list){
+    cacheDataByDate[date] = cacheDataByDate[date].filter((platform, index, self) => self.findIndex(p => p.webtoon[0].title === platform.webtoon[0].title) === index)
+  }
 }
+
 cachingDatePage()
 
 /* GET home page. */
@@ -45,6 +52,11 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/:date', (req,res)=>{ 
+  // 9.11 중복 제거
+
+
+  // cache 추가
+
   res.json(cacheDataByDate[req.params.date])
 });
 

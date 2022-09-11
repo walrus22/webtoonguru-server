@@ -8,15 +8,13 @@ const ObjectId = require("mongodb").ObjectId;
 
 let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
 let today = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-
+let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*5)).toISOString().slice(0, -1);
 // 5 지워
 
-let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*5)).toISOString().slice(0, -1);
 var cacheDataByGenre = {}; 
+const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"];
+
 const cachingGenrePage = async () => {
-  const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", 
-  "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"];
-  
   let pipeline = [
     {$lookup: {
       localField: "webtoon._id",
@@ -32,6 +30,7 @@ const cachingGenrePage = async () => {
     await pipeline.pop();
   }
   // await console.log(cacheDataByGenre);
+
 }
 
 cachingGenrePage()
@@ -47,9 +46,7 @@ router.get('/', function(req, res, next) {
 router.get('/:name', (req,res)=>{ 
   // let reg = new RegExp(process.env.VALID_REFERER_URL, 'i')
   // console.log(process.env.A);
-  // console.log(reg.test(req.headers.referer))
-  
-  // console.log(req);
+
 
   res.json(cacheDataByGenre[req.params.name])
   
