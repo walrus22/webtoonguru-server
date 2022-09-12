@@ -12,7 +12,7 @@ let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*5)).toISOString().
 // 5 지워
 
 var cacheDataByGenre = {}; 
-const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", "thrill/horror", "historical", "sports", "sensibility", "school", "erotic"];
+const genre_list = ["romance", "bl", "gl", "drama", "daily", "action", "gag", "fantasy", "thrill+horror", "historical", "sports", "sensibility", "school", "erotic"];
 
 const cachingGenrePage = async () => {
   let pipeline = [
