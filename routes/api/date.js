@@ -6,9 +6,9 @@ const Platform = require('../../models/platform')
 // const Webtoon = require('../../models/webtoon')
 // const ObjectId = require("mongodb").ObjectId;
 
-var cacheDataByDate = {}; 
+let cacheDataByDate = {}; 
 const day_list = ["월","화","수","목","금","토","일","연재","완결","열흘", "비정기"]
-const platform_list = ["naver", "kakao_webtoon", "lezhin", "toomics", "ktoon", "bomtoon", "mrblue",  "onestory", ];
+const platform_list = ["toptoon", "naver", "kakao_webtoon", "lezhin", "toomics", "ktoon", "bomtoon", "mrblue",  "onestory", ];
 
 const cachingDatePage = async () => {
   for(date of day_list){

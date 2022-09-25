@@ -8,7 +8,7 @@ const mongoose = require('mongoose')
 let tzoffset = new Date().getTimezoneOffset() * 60000; //offset in milliseconds
 let today = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
 let yesterday = (new Date(Date.now() - tzoffset - 60000*60*24*10)).toISOString().slice(0, -1); // *119지워
-var cacheDataHomePage = []; 
+let cacheDataHomePage = []; 
 
 const cachingHomePage = async () => {
   cacheDataHomePage = await Platform.aggregate([

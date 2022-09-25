@@ -7,14 +7,33 @@ const ObjectId = require("mongodb").ObjectId;
 
 router.post('/', (req, res) => {
     console.log(req.body)
-
+    
     keywordCaseInsensitive = new RegExp(req.body.word, 'i')
     // pipeline = [{$match : {$or : [{'title': {$regex : keywordCaseInsensitive}}, {"artist.name": {$regex : keywordCaseInsensitive}}]}}, {$limit: 10}]
-
-    Webtoon.aggregate([{$match : {$or : [{'title': {$regex : keywordCaseInsensitive}}, {"artist.name": {$regex : keywordCaseInsensitive}}]}}, {$limit: 10}])
+    Webtoon.aggregate(
+        [{$match : 
+            {$or : 
+                [{'title': {$regex : keywordCaseInsensitive}}, 
+                {"artist.name": {$regex : keywordCaseInsensitive}}]
+            }}, 
+            {$limit: 10}
+        ])
     .then(w_temp => res.json(w_temp))
     .catch(err => res.status(404).json(err));
+
+    // if(req.body.word !== "") {
+    //     keywordCaseInsensitive = new RegExp(req.body.word, 'i')
+    //     // pipeline = [{$match : {$or : [{'title': {$regex : keywordCaseInsensitive}}, {"artist.name": {$regex : keywordCaseInsensitive}}]}}, {$limit: 10}]
+    //     Webtoon.aggregate([{$match : {$or : [{'title': {$regex : keywordCaseInsensitive}}, {"artist.name": {$regex : keywordCaseInsensitive}}]}}, {$limit: 10}])
+    //     .then(w_temp => res.json(w_temp))
+    //     .catch(err => res.status(404).json(err));
+    // } else {
+    //     w_temp = {"a" : "b"}
+    //     res.json(w_temp)
+    // }
+
 
 })
 
 module.exports = router;
+
